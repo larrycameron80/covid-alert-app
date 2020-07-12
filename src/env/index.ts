@@ -23,3 +23,5 @@ export const TRANSMISSION_RISK_LEVEL = parseInt(Config.TRANSMISSION_RISK_LEVEL, 
 export const TEST_MODE = Config.TEST_MODE === 'true' || false;
 
 export const MOCK_SERVER = Config.MOCK_SERVER === 'true' || false;
+
+export const SENTRY_DSN = Config.SENTRY_DSN;
