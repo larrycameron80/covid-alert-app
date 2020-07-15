@@ -154,6 +154,7 @@ android {
         }
     }
     signingConfigs {
+      /*
       release {
         def keystorePropertiesFile = rootProject.file("keystore.properties")
 
@@ -169,7 +170,7 @@ android {
           keyAlias keystoreProperties["STOPCOVID_UPLOAD_KEY_ALIAS"]
           keyPassword keystoreProperties["STOPCOVID_UPLOAD_KEY_PASSWORD"]
         }
-      }
+      } */
     }
     buildTypes {
         debug {
@@ -178,7 +179,7 @@ android {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            signingConfig signingConfigs.release
+            // signingConfig signingConfigs.release
         }
     }
 
