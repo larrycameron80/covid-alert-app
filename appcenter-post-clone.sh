@@ -22,4 +22,5 @@ echo "MINIMUM_FETCH_INTERVAL=$MINIMUM_FETCH_INTERVAL" >> $dotenv
 
 cat $dotenv
 
+yarn install
 bundle install && yarn pod-install
