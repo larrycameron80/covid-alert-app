@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#
+# Setup .env and .env.production
+#
 dotenv=./.env
 touch $dotenv
 
@@ -20,6 +23,15 @@ echo "MCC_CODE=$MCC_CODE" >> $dotenv
 echo "TRANSMISSION_RISK_LEVEL=$TRANSMISSION_RISK_LEVEL" >> $dotenv
 echo "MINIMUM_FETCH_INTERVAL=$MINIMUM_FETCH_INTERVAL" >> $dotenv
 
-cat $dotenv
-
 cp $dotenv .env.production
+
+#
+# Setup keystore.properties
+#
+keystorep=./android/keystore.properties
+touch $keystorep
+
+echo "STOPCOVID_UPLOAD_STORE_FILE=$STOPCOVID_UPLOAD_STORE_FILE" >> $keystorep
+echo "STOPCOVID_UPLOAD_KEY_ALIAS=$STOPCOVID_UPLOAD_KEY_ALIAS" >> $keystorep
+echo "STOPCOVID_UPLOAD_STORE_PASSWORD=$STOPCOVID_UPLOAD_STORE_PASSWORD" >> $keystorep
+echo "STOPCOVID_UPLOAD_KEY_PASSWORD=$STOPCOVID_UPLOAD_KEY_PASSWORD" >> $keystorep
