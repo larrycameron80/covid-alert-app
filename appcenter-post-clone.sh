@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-cd ..
 dotenv=./.env
 touch $dotenv
 
