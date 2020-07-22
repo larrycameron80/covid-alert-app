@@ -78,6 +78,7 @@ export const OnboardingScreen = () => {
             }}
             importantForAccessibility="no"
             accessible={false}
+            removeClippedSubviews={false}
           />
         </View>
         <Box flexDirection="row" borderTopWidth={2} borderTopColor="gray5">

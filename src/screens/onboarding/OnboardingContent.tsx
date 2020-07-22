@@ -1,8 +1,9 @@
-import React from 'react';
-import {StyleSheet, Platform} from 'react-native';
+import React, {useLayoutEffect, useCallback, useRef} from 'react';
+import {StyleSheet, Platform, ScrollView} from 'react-native';
 import {Box} from 'components';
-import ScrollView from 'rn-faded-scrollview';
+// import ScrollView from 'rn-faded-scrollview';
 import {useOrientation} from 'shared/useOrientation';
+import {useFocusEffect} from '@react-navigation/native';
 
 import {Start} from './views/Start';
 import {Anonymous} from './views/Anonymous';
@@ -35,10 +36,23 @@ export const OnboardingContent = ({item, isActive}: OnboardingContentProps) => {
   const {orientation} = useOrientation();
   const rightPadding = orientation === 'landscape' && Platform.OS === 'ios' ? 'xxl' : 'm';
   const rightMargin = orientation === 'landscape' && Platform.OS === 'ios' ? 'l' : 'none';
+  const ref = useRef<ScrollView>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (ref.current) {
+        ref.current.scrollTo({x: 0, y: 0, animated: false});
+      }
+      return () => {};
+    }, []),
+  );
+
   return (
     <ScrollView
-      fadeSize={50}
-      fadeColors={['rgba(255, 255, 255, 0.18)', 'rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.9)']}
+      scrollToOverflowEnabled
+      // fadeSize={50}
+      // fadeColors={['rgba(255, 255, 255, 0.18)', 'rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.9)']}
+      ref={ref}
       style={styles.flex}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.content}
