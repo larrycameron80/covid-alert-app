@@ -13,8 +13,8 @@ export const CodeInput = ({value, onChange, accessibilityLabel}: CodeInputProps)
   const onChangeTrimmed = useCallback(
     text => {
       // Remove any character that is not alphanumeric (or a space)
-      const modifiedText = text.replace(/[^a-zA-Z0-9\s]*/g, '');
-      onChange(modifiedText.trim());
+      const modifiedText = text.replace(/[^a-zA-Z0-9\s-]*/g, '');
+      onChange(modifiedText);
     },
     [onChange],
   );
