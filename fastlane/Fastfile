@@ -122,11 +122,7 @@ platform :ios do
     ensure_build_directory
 
     match(
-      git_url: ENV["CERTS_REPO"],
-      app_identifier: ENV["APP_ID_IOS"],
-      username: ENV["APPLE_ID"],
-      type: "adhoc",
-      readonly: true
+      type: "adhoc"
     )
 
     output_directory = File.expand_path('../build/ios')
@@ -136,11 +132,6 @@ platform :ios do
       workspace: "./ios/CovidShield.xcworkspace",
       export_method: "ad-hoc",
       output_directory: output_directory,
-      export_options: {
-        provisioningProfiles: {
-          "ca.gc.hcsc.canada.stopcovid" => "Stop COVID AdHoc Profile"
-        }
-      }
     )
   end
 end
