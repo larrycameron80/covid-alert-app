@@ -6,7 +6,7 @@ jobs:
     working_directory: /Users/distiller/project
     environment:
       FL_OUTPUT_DIR: output
-      FASTLANE_LANE: ios local
+      FASTLANE_LANE: ios beta
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout
@@ -25,6 +25,8 @@ jobs:
           command: bundle exec fastlane $FASTLANE_LANE
       - store_artifacts:
           path: output
+      - store_artifacts:
+          path: build
       - store_test_results:
           path: output/scan
 
