@@ -34,3 +34,6 @@ workflows:
   build-test-adhoc:
     jobs:
       - build
+        filters:
+          branches:
+            only: feature/fastlane_ci
