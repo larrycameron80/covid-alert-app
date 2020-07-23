@@ -138,7 +138,7 @@ platform :ios do
       output_directory: output_directory,
       export_options: {
         provisioningProfiles: {
-          ENV["APP_ID_IOS"] => ENV["PROFILE_ADHOC"]
+          "ca.gc.hcsc.canada.stopcovid" => "Stop COVID AdHoc Profile"
         }
       }
     )
