@@ -13,6 +13,7 @@ import {Theme} from 'shared/theme';
 import {useStorage} from 'services/StorageService';
 import {getRegionCase} from 'shared/RegionLogic';
 import {usePrevious} from 'shared/usePrevious';
+import {getCurrentDate} from 'shared/date-fns';
 
 import {useExposureNotificationSystemStatusAutomaticUpdater} from '../../services/ExposureNotificationService';
 import {RegionCase} from '../../shared/Region';
@@ -35,6 +36,8 @@ import {
   NotificationPermissionStatusProvider,
 } from './components/NotificationPermissionStatus';
 
+const LOADING_DELAY = 1000;
+
 type BackgroundColor = keyof Theme['colors'];
 
 interface ContentProps {
@@ -53,6 +56,17 @@ const Content = ({setBackgroundColor, isBottomSheetExpanded}: ContentProps) => {
   const [exposureStatus] = useExposureStatus();
   const [systemStatus] = useSystemStatus();
   const [, turnNotificationsOn] = useNotificationPermissionStatus();
+  // const [startTime, setStartTime] = useState<number>(0);
+  // const [currentTime, setCurrentTime] = useState<number>(0);
+  // useEffect(() => {
+  //   const doStuff = async () => {
+  //     setStartTime(getCurrentDate().getTime());
+  //     await new Promise(resolve => setTimeout(resolve, 500));
+  //     setCurrentTime(getCurrentDate().getTime());
+  //   };
+  //   doStuff();
+  // }, []);
+
   useEffect(() => {
     return turnNotificationsOn();
   }, [turnNotificationsOn]);
@@ -82,41 +96,55 @@ const Content = ({setBackgroundColor, isBottomSheetExpanded}: ContentProps) => {
     }
   };
 
-  // this case should be highest priority - if bluetooth is off, the app doesn't work
-  if (systemStatus === SystemStatus.BluetoothOff) {
-    return <BluetoothDisabledView />;
-  }
+  const getHomeScreenView = () => {
+    if (systemStatus === SystemStatus.Undefined) {
+      return null;
+    }
+    // this case should be highest priority - if bluetooth is off, the app doesn't work
+    if (systemStatus === SystemStatus.BluetoothOff) {
+      return <BluetoothDisabledView />;
+    }
 
-  if (systemStatus === SystemStatus.Disabled || systemStatus === SystemStatus.Restricted) {
-    return <ExposureNotificationsDisabledView isBottomSheetExpanded={isBottomSheetExpanded} />;
-  }
+    if (systemStatus === SystemStatus.Disabled || systemStatus === SystemStatus.Restricted) {
+      return <ExposureNotificationsDisabledView isBottomSheetExpanded={isBottomSheetExpanded} />;
+    }
 
-  if (systemStatus === SystemStatus.PlayServicesNotAvailable) {
-    return <FrameworkUnavailableView isBottomSheetExpanded={isBottomSheetExpanded} />;
-  }
+    if (systemStatus === SystemStatus.PlayServicesNotAvailable) {
+      return <FrameworkUnavailableView isBottomSheetExpanded={isBottomSheetExpanded} />;
+    }
 
-  if (!network.isConnected) {
-    return <NetworkDisabledView />;
-  }
+    if (!network.isConnected && network.type !== 'unknown') {
+      return <NetworkDisabledView />;
+    }
+    console.log('systemStatus', systemStatus);
+    switch (exposureStatus.type) {
+      case 'exposed':
+        return <ExposureView isBottomSheetExpanded={isBottomSheetExpanded} />;
+      case 'diagnosed':
+        return exposureStatus.needsSubmission ? (
+          <DiagnosedShareView isBottomSheetExpanded={isBottomSheetExpanded} />
+        ) : (
+          <DiagnosedView isBottomSheetExpanded={isBottomSheetExpanded} />
+        );
+      case 'monitoring':
+      default:
+        switch (systemStatus) {
+          case SystemStatus.Active:
+            return getNoExposureView(regionCase);
 
-  switch (exposureStatus.type) {
-    case 'exposed':
-      return <ExposureView isBottomSheetExpanded={isBottomSheetExpanded} />;
-    case 'diagnosed':
-      return exposureStatus.needsSubmission ? (
-        <DiagnosedShareView isBottomSheetExpanded={isBottomSheetExpanded} />
-      ) : (
-        <DiagnosedView isBottomSheetExpanded={isBottomSheetExpanded} />
-      );
-    case 'monitoring':
-    default:
-      switch (systemStatus) {
-        case SystemStatus.Active:
-          return getNoExposureView(regionCase);
-        default:
-          return <UnknownProblemView isBottomSheetExpanded={isBottomSheetExpanded} />;
-      }
-  }
+          default:
+            // return getNoExposureView(regionCase);
+            return <UnknownProblemView isBottomSheetExpanded={isBottomSheetExpanded} />;
+          // return null;
+        }
+    }
+  };
+
+  // const msSinceStart = currentTime - startTime;
+  // if (msSinceStart < LOADING_DELAY) {
+  //   return null;
+  // }
+  return getHomeScreenView();
 };
 
 const CollapsedContent = (bottomSheetBehavior: BottomSheetBehavior) => {

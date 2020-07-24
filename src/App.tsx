@@ -15,7 +15,7 @@ import {StorageServiceProvider, useStorageService} from 'services/StorageService
 import Reactotron from 'reactotron-react-native';
 import {NativeModules, StatusBar} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
-import {DemoMode} from 'testMode';
+// import {DemoMode} from 'testMode';
 import {TEST_MODE, SUBMIT_URL, RETRIEVE_URL, HMAC_KEY} from 'env';
 import {ExposureNotificationServiceProvider} from 'services/ExposureNotificationService';
 import {BackendService} from 'services/BackendService';
@@ -53,13 +53,7 @@ const App = () => {
       <ExposureNotificationServiceProvider backendInterface={backendService}>
         <DevPersistedNavigationContainer persistKey="navigationState">
           <AccessibilityServiceProvider>
-            {TEST_MODE ? (
-              <DemoMode>
-                <MainNavigator />
-              </DemoMode>
-            ) : (
-              <MainNavigator />
-            )}
+            <MainNavigator />
           </AccessibilityServiceProvider>
         </DevPersistedNavigationContainer>
       </ExposureNotificationServiceProvider>
