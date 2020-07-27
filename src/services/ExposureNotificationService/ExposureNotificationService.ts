@@ -16,7 +16,7 @@ import exposureConfigurationSchema from './ExposureConfigurationSchema.json';
 import {ExposureConfigurationValidator, ExposureConfigurationValidationError} from './ExposureConfigurationValidator';
 import {ACCESSIBLE} from "react-native-secure-key-store";
 
-const SUBMISSION_AUTH_KEYS = 'submissionAuthKeys';
+const SUBMISSION_AUTH_KEYS = 'submissionAuthKeys_v2';
 const EXPOSURE_CONFIGURATION = 'exposureConfiguration';
 
 export const EXPOSURE_STATUS = 'exposureStatus';
