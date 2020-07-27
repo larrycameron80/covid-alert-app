@@ -10,7 +10,7 @@ import {
   AccessibilityRole,
 } from 'react-native';
 import {Theme, palette} from 'shared/theme';
-import {useI18n} from '@shopify/react-i18n';
+import {useI18n} from 'locale';
 
 import {Box} from './Box';
 import {Icon, IconName} from './Icon';
@@ -40,7 +40,7 @@ export const ButtonSingleLine = ({
   internalLink,
   iconName,
 }: ButtonSingleLineProps) => {
-  const [i18n] = useI18n();
+  const i18n = useI18n();
   const theme = useTheme<Theme>();
   const variantProps = theme.buttonVariants[variant];
   const disabledProps = disabled ? variantProps.disabled || {} : {};
@@ -65,6 +65,7 @@ export const ButtonSingleLine = ({
       borderRadius={borderRadius}
       alignItems="center"
       justifyContent="center"
+      // eslint-disable-next-line react-native/no-inline-styles
       style={{
         backgroundColor: Platform.OS === 'ios' ? color : 'transparent',
         minHeight: height,

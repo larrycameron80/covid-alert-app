@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {createDrawerNavigator, DrawerContentScrollView} from '@react-navigation/drawer';
-import {useI18n} from '@shopify/react-i18n';
+import {createStackNavigator} from '@react-navigation/stack';
+import {useI18n} from 'locale';
 import PushNotification from 'bridge/PushNotification';
 import {Box, Button, LanguageToggle, Text} from 'components';
 import {useStorage} from 'services/StorageService';
@@ -81,7 +82,7 @@ const SkipAllSetRadioSelector = () => {
 };
 
 const DrawerContent = () => {
-  const [i18n] = useI18n();
+  const i18n = useI18n();
 
   const {reset} = useStorage();
 
@@ -149,6 +150,8 @@ const DrawerContent = () => {
   );
 };
 
+const DemoStack = createStackNavigator();
+
 export interface DemoModeProps {
   children?: React.ReactElement;
 }
@@ -162,11 +165,19 @@ export const DemoMode = ({children}: DemoModeProps) => {
     return Component;
   }, [children]);
 
-  return (
-    <MockProvider>
+  const Screen = useCallback(() => {
+    return (
       <Drawer.Navigator drawerPosition="right" drawerContent={drawerContent}>
         <Drawer.Screen name="main" component={Component} />
       </Drawer.Navigator>
+    );
+  }, [Component, drawerContent]);
+
+  return (
+    <MockProvider>
+      <DemoStack.Navigator screenOptions={{headerShown: false}} initialRouteName="Demo">
+        <DemoStack.Screen name="Demo" component={Screen} />
+      </DemoStack.Navigator>
     </MockProvider>
   );
 };

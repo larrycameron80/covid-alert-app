@@ -1,6 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Box, CodeInput, Text, Button} from 'components';
-import {useI18n} from '@shopify/react-i18n';
+import {useI18n} from 'locale';
 import {useReportDiagnosis} from 'services/ExposureNotificationService';
 
 export interface FormViewProps {
@@ -11,7 +11,7 @@ export interface FormViewProps {
 }
 
 export const FormView = ({value, onChange, onSuccess, onError}: FormViewProps) => {
-  const [i18n] = useI18n();
+  const i18n = useI18n();
   const [loading, setLoading] = useState(false);
   const {startSubmission} = useReportDiagnosis();
   const handleVerify = useCallback(async () => {
@@ -29,14 +29,20 @@ export const FormView = ({value, onChange, onSuccess, onError}: FormViewProps) =
   return (
     <>
       <Box marginHorizontal="m" marginBottom="l">
-        <Text variant="bodyTitle" color="overlayBodyText" accessibilityRole="header" accessibilityAutoFocus>
+        <Text
+          variant="bodyTitle"
+          color="overlayBodyText"
+          accessibilityRole="header"
+          // eslint-disable-next-line no-unneeded-ternary
+          accessibilityAutoFocus={value === '' ? true : false}
+        >
           {i18n.translate('DataUpload.FormView.Title')}
         </Text>
       </Box>
       <Box marginHorizontal="m" marginBottom="l">
         <Text color="overlayBodyText">{i18n.translate('DataUpload.FormView.Body')}</Text>
       </Box>
-      <Box marginBottom="m">
+      <Box marginBottom="m" paddingHorizontal="m">
         <CodeInput
           value={value}
           onChange={onChange}
@@ -46,7 +52,7 @@ export const FormView = ({value, onChange, onSuccess, onError}: FormViewProps) =
       <Box flex={1} marginHorizontal="m" marginBottom="m">
         <Button
           loading={loading}
-          disabled={value.length !== 8}
+          disabled={value.length < 10}
           variant="thinFlat"
           text={i18n.translate('DataUpload.FormView.Action')}
           onPress={handleVerify}

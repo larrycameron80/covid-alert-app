@@ -17,7 +17,6 @@ import IconExternalArrowLight from 'assets/icon-external-arrow-light.svg';
 import IconImportant from 'assets/icon-important.svg';
 import IconMessages from 'assets/icon-messages.svg';
 import IconNotify from 'assets/icon-notify.svg';
-import IconShare from 'assets/icon-share.svg';
 import IconNotifications from 'assets/icon-notifications.svg';
 import IconNoNotifications from 'assets/icon-no-notifications.svg';
 import IconLearn from 'assets/icon-learn.svg';
@@ -45,6 +44,8 @@ import HandReminder from 'assets/hand-reminder.svg';
 import HandThankYouWithLove from 'assets/hand-thank-you-with-love.svg';
 import HandNoProvinceYet from 'assets/hand-no-province-yet.svg';
 import StopCOVID from 'assets/StopCOVID.svg';
+import CanadaLogo from 'assets/canada.svg';
+import PurpleBullet from 'assets/purple-bullet.svg';
 
 const ICONS = {
   'icon-x': IconX,
@@ -65,7 +66,6 @@ const ICONS = {
   'icon-important': IconImportant,
   'icon-messages': IconMessages,
   'icon-notify': IconNotify,
-  'icon-share': IconShare,
   'icon-notifications': IconNotifications,
   'icon-no-notifications': IconNoNotifications,
   'icon-learn': IconLearn,
@@ -79,6 +79,7 @@ const ICONS = {
   'header-logo-rings': HeaderLogoRings,
   'progress-circle-filled': ProgressCircleFilled,
   'progress-circle-empty': ProgressCircleEmpty,
+  'purple-bullet': PurpleBullet,
   'share-heading': ShareHeading,
   'sheet-handle-bar': SheetHandleBar,
   'sheet-handle-bar-close': SheetHandleBarClose,
@@ -93,6 +94,7 @@ const ICONS = {
   'hand-reminder': HandReminder,
   'hand-thank-you-with-love': HandThankYouWithLove,
   'hand-no-province-yet': HandNoProvinceYet,
+  'canada-logo': CanadaLogo,
 };
 
 export type IconName = keyof typeof ICONS;
@@ -100,9 +102,11 @@ export type IconName = keyof typeof ICONS;
 export interface IconProps {
   name: IconName | undefined;
   size?: number;
+  width?: number;
+  height?: number;
 }
 
-export const Icon = ({name, size = 24}: IconProps) => {
+export const Icon = ({name, size = 24, width, height}: IconProps) => {
   const IconImpl = name !== undefined ? ICONS[name] : null; // eslint-disable-line no-negated-condition
-  return IconImpl ? <IconImpl width={size} height={size} /> : null;
+  return IconImpl ? <IconImpl width={width ? width : size} height={height ? height : size} /> : null;
 };

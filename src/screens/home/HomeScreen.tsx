@@ -2,14 +2,13 @@ import React, {useCallback, useEffect, useState, useRef, useLayoutEffect} from '
 import {useNetInfo} from '@react-native-community/netinfo';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
 import {BottomSheet, BottomSheetBehavior, Box} from 'components';
-import {DevSettings, Linking} from 'react-native';
+import {DevSettings, Linking, Animated} from 'react-native';
 import {
   SystemStatus,
   useExposureStatus,
   useStartExposureNotificationService,
   useSystemStatus,
 } from 'services/ExposureNotificationService';
-import {useMaxContentWidth} from 'shared/useMaxContentWidth';
 import {Theme} from 'shared/theme';
 import {useStorage} from 'services/StorageService';
 import {getRegionCase} from 'shared/RegionLogic';
@@ -29,6 +28,8 @@ import {NoExposureCoveredRegionView} from './views/NoExposureCoveredRegionView';
 import {NoExposureNoRegionView} from './views/NoExposureNoRegionView';
 import {NetworkDisabledView} from './views/NetworkDisabledView';
 import {OverlayView} from './views/OverlayView';
+import {FrameworkUnavailableView} from './views/FrameworkUnavailableView';
+import {UnknownProblemView} from './views/UnknownProblemView';
 import {
   useNotificationPermissionStatus,
   NotificationPermissionStatusProvider,
@@ -81,9 +82,24 @@ const Content = ({setBackgroundColor, isBottomSheetExpanded}: ContentProps) => {
     }
   };
 
+  if (systemStatus === SystemStatus.Undefined) {
+    return null;
+  }
   // this case should be highest priority - if bluetooth is off, the app doesn't work
   if (systemStatus === SystemStatus.BluetoothOff) {
     return <BluetoothDisabledView />;
+  }
+
+  if (systemStatus === SystemStatus.Disabled || systemStatus === SystemStatus.Restricted) {
+    return <ExposureNotificationsDisabledView isBottomSheetExpanded={isBottomSheetExpanded} />;
+  }
+
+  if (systemStatus === SystemStatus.PlayServicesNotAvailable) {
+    return <FrameworkUnavailableView isBottomSheetExpanded={isBottomSheetExpanded} />;
+  }
+
+  if (!network.isConnected) {
+    return <NetworkDisabledView />;
   }
 
   switch (exposureStatus.type) {
@@ -97,16 +113,11 @@ const Content = ({setBackgroundColor, isBottomSheetExpanded}: ContentProps) => {
       );
     case 'monitoring':
     default:
-      if (!network.isConnected && network.type !== 'unknown') return <NetworkDisabledView />;
       switch (systemStatus) {
-        case SystemStatus.Disabled:
-        case SystemStatus.Restricted:
-          return <ExposureNotificationsDisabledView isBottomSheetExpanded={isBottomSheetExpanded} />;
         case SystemStatus.Active:
           return getNoExposureView(regionCase);
         default:
-          // return null;
-          return getNoExposureView(regionCase);
+          return <UnknownProblemView isBottomSheetExpanded={isBottomSheetExpanded} />;
       }
   }
 };
@@ -134,7 +145,6 @@ const ExpandedContent = (bottomSheetBehavior: BottomSheetBehavior) => {
   const [systemStatus] = useSystemStatus();
   const [notificationStatus, turnNotificationsOn] = useNotificationPermissionStatus();
   const showNotificationWarning = notificationStatus !== 'granted';
-  const maxWidth = useMaxContentWidth();
   const toSettings = useCallback(() => {
     Linking.openSettings();
   }, []);
@@ -148,7 +158,6 @@ const ExpandedContent = (bottomSheetBehavior: BottomSheetBehavior) => {
       status={systemStatus}
       notificationWarning={showNotificationWarning}
       turnNotificationsOn={turnNotificationsOnFn}
-      maxWidth={maxWidth}
       bottomSheetBehavior={bottomSheetBehavior}
     />
   );
@@ -176,7 +185,6 @@ export const HomeScreen = () => {
     startExposureNotificationService();
   }, [startExposureNotificationService]);
 
-  const maxWidth = useMaxContentWidth();
   const [backgroundColor, setBackgroundColor] = useState<string>('mainBackground');
 
   const bottomSheetRef = useRef<BottomSheetBehavior>(null);
@@ -191,19 +199,32 @@ export const HomeScreen = () => {
   useLayoutEffect(() => {
     bottomSheetRef.current?.setOnStateChange(setIsBottomSheetExpanded);
   }, []);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  React.useEffect(
+    () =>
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        delay: 1000,
+        duration: 10,
+        useNativeDriver: false,
+      }).start(),
+    [fadeAnim],
+  );
 
   return (
     <NotificationPermissionStatusProvider>
       <Box flex={1} alignItems="center" backgroundColor={strToBackgroundColor(backgroundColor)}>
         <Box
           flex={1}
-          maxWidth={maxWidth}
           paddingTop="m"
+          paddingBottom="m"
           alignSelf="stretch"
           accessibilityElementsHidden={isBottomSheetExpanded}
           importantForAccessibility={isBottomSheetExpanded ? 'no-hide-descendants' : undefined}
         >
-          <Content isBottomSheetExpanded={isBottomSheetExpanded} setBackgroundColor={setBackgroundColor} />
+          <Animated.View style={{opacity: fadeAnim}}>
+            <Content isBottomSheetExpanded={isBottomSheetExpanded} setBackgroundColor={setBackgroundColor} />
+          </Animated.View>
         </Box>
         <BottomSheet ref={bottomSheetRef} expandedComponent={ExpandedContent} collapsedComponent={CollapsedContent} />
       </Box>

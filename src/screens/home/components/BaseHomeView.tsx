@@ -10,35 +10,34 @@ interface BaseHomeViewProps {
 
 export const BaseHomeView = ({children, iconName}: BaseHomeViewProps) => {
   return (
-    <SafeAreaView style={styles.flex}>
-      <Header />
-      <ScrollView contentContainerStyle={[styles.scrollContainer]} bounces={false}>
-        <Box width="100%" justifyContent="flex-start" marginBottom="-l">
-          <Box style={{...styles.primaryIcon}}>
-            <Icon name={iconName} size={120} />
+    <>
+      <SafeAreaView edges={['top']}>
+        <Header />
+      </SafeAreaView>
+      <ScrollView contentContainerStyle={styles.scrollContainer} bounces={false}>
+        <SafeAreaView edges={['left', 'right']}>
+          <Box width="100%" justifyContent="flex-start" marginBottom="-l">
+            <Box style={{...styles.primaryIcon}}>
+              <Icon name={iconName} height={120} width={150} />
+            </Box>
           </Box>
-        </Box>
-        <Box width="100%" flex={1} alignItems="flex-start" justifyContent="flex-start" paddingHorizontal="m">
-          {children}
-        </Box>
+          <Box width="100%" flex={1} alignItems="flex-start" justifyContent="flex-start" paddingHorizontal="m">
+            {children}
+          </Box>
+        </SafeAreaView>
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  primaryIcon: {marginLeft: 0, marginBottom: 30},
-  flex: {
-    flex: 0,
-  },
+  primaryIcon: {marginLeft: -40, marginBottom: 30},
   scrollContainerWithAnimation: {
     marginTop: -100,
   },
   scrollContainer: {
     minHeight: '90%',
-    alignItems: 'center',
-  },
-  animationBase: {
-    marginBottom: -100,
+    maxWidth: 600,
+    alignItems: 'flex-start',
   },
 });

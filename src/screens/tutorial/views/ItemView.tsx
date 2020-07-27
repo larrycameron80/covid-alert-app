@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Image, ImageSourcePropType} from 'react-native';
-import {Text, TextMultiline} from 'components';
-import {useI18n} from '@shopify/react-i18n';
+import {Box, Text, TextMultiline} from 'components';
+import {useI18n} from 'locale';
 import {useAccessibilityAutoFocus} from 'shared/useAccessibilityAutoFocus';
 
 import {TutorialKey} from '../TutorialContent';
@@ -13,18 +13,20 @@ export interface ItemViewProps {
 }
 
 export const ItemView = ({item, image, isActive}: ItemViewProps) => {
-  const [i18n] = useI18n();
-  const accessibilityAutoFocusRef = useAccessibilityAutoFocus(isActive);
+  const i18n = useI18n();
+  const autoFocusRef = useAccessibilityAutoFocus(isActive);
 
   return (
     <>
-      <Image
-        accessible
-        ref={accessibilityAutoFocusRef}
-        style={styles.image}
-        source={image}
-        accessibilityLabel={i18n.translate(`Tutorial.${item}AltText`)}
-      />
+      <Box marginHorizontal="-m" marginTop="s" marginBottom="l" borderBottomWidth={2} borderBottomColor="gray5">
+        <Image
+          accessible
+          ref={autoFocusRef}
+          style={styles.image}
+          source={image}
+          accessibilityLabel={i18n.translate(`Tutorial.${item}AltText`)}
+        />
+      </Box>
       <Text variant="bodyTitle" color="overlayBodyText" marginBottom="l" accessible accessibilityRole="header">
         {i18n.translate(`Tutorial.${item}Title`)}
       </Text>
@@ -42,7 +44,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 189,
-    marginBottom: 30,
     resizeMode: 'contain',
     alignSelf: 'center',
   },
