@@ -14,6 +14,7 @@ import {BackendInterface, SubmissionKeySet} from '../BackendService';
 import exposureConfigurationDefault from './ExposureConfigurationDefault.json';
 import exposureConfigurationSchema from './ExposureConfigurationSchema.json';
 import {ExposureConfigurationValidator, ExposureConfigurationValidationError} from './ExposureConfigurationValidator';
+import {ACCESSIBLE} from "react-native-secure-key-store";
 
 const SUBMISSION_AUTH_KEYS = 'submissionAuthKeys';
 const EXPOSURE_CONFIGURATION = 'exposureConfiguration';
@@ -166,7 +167,9 @@ export class ExposureNotificationService {
     const serialized = JSON.stringify(keys);
     console.log(serialized);
     try {
-      await this.secureStorage.set(SUBMISSION_AUTH_KEYS, serialized, {});
+      await this.secureStorage.set(SUBMISSION_AUTH_KEYS, serialized, {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
     } catch (error) {
       console.error(error);
     }
