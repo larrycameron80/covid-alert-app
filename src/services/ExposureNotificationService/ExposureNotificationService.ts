@@ -141,8 +141,6 @@ export class ExposureNotificationService {
     await this.init();
     try {
       captureMessage('updateExposureStatusInBackground', {exposureStatus: this.exposureStatus.get()});
-      await this.processPendingExposureSummary();
-      await this.processNotification();
       await this.updateExposureStatus();
       await this.processNotification();
       captureMessage('updatedExposureStatusInBackground', {exposureStatus: this.exposureStatus.get()});
@@ -275,6 +273,11 @@ export class ExposureNotificationService {
   }
 
   private async performExposureStatusUpdate(): Promise<void> {
+    const hasPendingExposureSummary = await this.processPendingExposureSummary();
+    if (hasPendingExposureSummary) {
+      return;
+    }
+
     let exposureConfiguration: ExposureConfiguration;
     try {
       exposureConfiguration = await this.backendInterface.getExposureConfiguration();
@@ -383,9 +386,12 @@ export class ExposureNotificationService {
 
   private async processPendingExposureSummary() {
     const summary = await this.exposureNotification.getPendingExposureSummary().catch(() => undefined);
+    if (!summary) {
+      return false;
+    }
     const exposureStatus = this.exposureStatus.get();
     if (exposureStatus.type === 'diagnosed' || !summary || summary.matchedKeyCount <= 0) {
-      return;
+      return true;
     }
     const today = getCurrentDate();
     this.exposureStatus.append({
@@ -396,6 +402,7 @@ export class ExposureNotificationService {
         period: periodSinceEpoch(today, HOURS_PER_PERIOD),
       },
     });
+    return true;
   }
 
   private selectExposureSummary(nextSummary: ExposureSummary): ExposureSummary {
