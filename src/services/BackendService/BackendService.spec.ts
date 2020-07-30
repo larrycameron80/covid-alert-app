@@ -36,7 +36,7 @@ jest.mock('./covidshield', () => ({
 }));
 
 jest.mock('../../bridge/CovidShield', () => ({
-  getRandomBytes: jest.fn(),
+  getRandomBytes: () => Promise.resolve([]),
   downloadDiagnosisKeysFile: jest.fn(),
 }));
 
