@@ -2,35 +2,49 @@
 import {when} from 'jest-when';
 
 import {periodSinceEpoch} from '../../shared/date-fns';
+import {BackendInterface} from '../BackendService';
+import {I18n} from '../../locale';
+import ExposureNotification, {Status as SystemStatus} from '../../bridge/ExposureNotification';
 
-import {ExposureNotificationService, EXPOSURE_STATUS, HOURS_PER_PERIOD} from './ExposureNotificationService';
+import {
+  ExposureNotificationService,
+  EXPOSURE_STATUS,
+  HOURS_PER_PERIOD,
+  PersistencyProvider,
+  SecurePersistencyProvider,
+} from './ExposureNotificationService';
 
 jest.mock('react-native-zip-archive', () => ({
   unzip: jest.fn(),
 }));
 
-const server: any = {
+const server: BackendInterface = {
   retrieveDiagnosisKeys: jest.fn().mockResolvedValue(null),
   getExposureConfiguration: jest.fn().mockResolvedValue({}),
   claimOneTimeCode: jest.fn(),
   reportDiagnosisKeys: jest.fn(),
 };
-const i18n: any = {
+const i18n: I18n = {
   translate: jest.fn().mockReturnValue('foo'),
+  locale: 'en',
 };
-const storage: any = {
+const storage: PersistencyProvider = {
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValueOnce(undefined),
 };
-const secureStorage: any = {
+const secureStorage: SecurePersistencyProvider = {
   get: jest.fn().mockResolvedValue(null),
   set: jest.fn().mockResolvedValueOnce(undefined),
 };
-const bridge: any = {
+const bridge: typeof ExposureNotification = {
   detectExposure: jest.fn().mockResolvedValue({matchedKeyCount: 0}),
   start: jest.fn().mockResolvedValue(undefined),
   getTemporaryExposureKeyHistory: jest.fn().mockResolvedValue({}),
   getStatus: jest.fn().mockResolvedValue('active'),
+  getExposureInformation: jest.fn(),
+  getPendingExposureSummary: jest.fn(),
+  resetAllData: jest.fn(),
+  stop: jest.fn(),
 };
 
 /**
@@ -76,6 +90,26 @@ describe('ExposureNotificationService', () => {
     // TODO: enable this later
     // jest.resetAllMocks();
     dateSpy.mockReset();
+  });
+
+  describe('init', () => {
+    it('has proper initial value', () => {
+      expect(service.systemStatus.get()).toStrictEqual(SystemStatus.Undefined);
+      expect(service.exposureStatus.get()).toStrictEqual(expect.objectContaining({type: 'monitoring'}));
+    });
+
+    it('observes exposureStatus and saves to storage', () => {
+      service.exposureStatus.set({
+        type: 'diagnosed',
+      });
+
+      expect(storage.setItem).toHaveBeenCalledWith(
+        EXPOSURE_STATUS,
+        expect.jsonStringContaining({
+          type: 'diagnosed',
+        }),
+      );
+    });
   });
 
   it('backfills keys when last timestamp not available', async () => {
