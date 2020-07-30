@@ -35,9 +35,8 @@ const registerPeriodicTask = async (task: PeriodicTask) => {
 };
 
 const registerAndroidHeadlessPeriodicTask = (task: PeriodicTask) => {
-  if (Platform.OS !== 'android') {
-    return;
-  }
+  if (Platform.OS !== 'android') return;
+
   BackgroundFetch.registerHeadlessTask(async ({taskId}) => {
     captureMessage('runAndroidHeadlessPeriodicTask', {taskId});
     await task().catch(error => captureException('runAndroidHeadlessPeriodicTask', error));
