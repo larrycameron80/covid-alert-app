@@ -4,7 +4,15 @@ import ExposureNotification, {
   ExposureConfiguration,
 } from 'bridge/ExposureNotification';
 import PushNotification from 'bridge/PushNotification';
-import {addDays, periodSinceEpoch, minutesBetween, getCurrentDate, daysBetweenUTC, daysBetween} from 'shared/date-fns';
+import {
+  addDays,
+  periodSinceEpoch,
+  minutesBetween,
+  getCurrentDate,
+  daysBetweenUTC,
+  daysBetween,
+  getMillisSinceUTCEpoch,
+} from 'shared/date-fns';
 import {I18n} from 'locale';
 import {Observable, MapObservable} from 'shared/Observable';
 import {captureException, captureMessage} from 'shared/log';
@@ -420,7 +428,7 @@ export class ExposureNotificationService {
       exposureStatus.type === 'diagnosed' &&
       exposureStatus.needsSubmission &&
       (!exposureStatus.uploadReminderLastSentAt ||
-        minutesBetween(new Date(exposureStatus.uploadReminderLastSentAt), new Date()) >
+        minutesBetween(new Date(exposureStatus.uploadReminderLastSentAt), getCurrentDate()) >
           MINIMUM_REMINDER_INTERVAL_MINUTES)
     ) {
       PushNotification.presentLocalNotification({
@@ -428,7 +436,7 @@ export class ExposureNotificationService {
         alertBody: this.i18n.translate('Notification.DailyUploadNotificationBody'),
       });
       await this.exposureStatus.append({
-        uploadReminderLastSentAt: new Date().getTime(),
+        uploadReminderLastSentAt: getMillisSinceUTCEpoch(),
       });
     }
   }

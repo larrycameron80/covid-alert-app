@@ -73,6 +73,8 @@ describe('ExposureNotificationService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    // TODO: enable this later
+    // jest.resetAllMocks();
     dateSpy.mockReset();
   });
 
