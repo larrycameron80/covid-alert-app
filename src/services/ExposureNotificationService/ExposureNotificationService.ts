@@ -375,9 +375,9 @@ export class ExposureNotificationService {
   private async processPendingExposureSummary() {
     const summary = await this.exposureNotification.getPendingExposureSummary().catch(() => undefined);
     const exposureStatus = this.exposureStatus.get();
-    if (exposureStatus.type === 'diagnosed' || !summary || summary.matchedKeyCount <= 0) {
-      return;
-    }
+
+    if (exposureStatus.type === 'diagnosed' || !summary || summary.matchedKeyCount <= 0) return;
+
     const today = getCurrentDate();
     this.exposureStatus.append({
       type: 'exposed',
