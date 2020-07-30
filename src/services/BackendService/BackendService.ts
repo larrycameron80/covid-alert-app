@@ -60,13 +60,10 @@ export class BackendService implements BackendInterface {
   }
 
   async claimOneTimeCode(oneTimeCode: string): Promise<SubmissionKeySet> {
-    let randomBytes: Buffer;
-    try {
-      randomBytes = await getRandomBytes(32);
-    } catch (error) {
+    const randomBytes: Buffer = await getRandomBytes(32).catch(error => {
       captureException('getRandomBytes()', error);
       throw new Error(error);
-    }
+    });
     nacl.setPRNG(buff => {
       buff.set(randomBytes, 0);
     });
@@ -118,13 +115,10 @@ export class BackendService implements BackendInterface {
     const serverPublicKey = Buffer.from(keyPair.serverPublicKey, 'base64');
     const clientPublicKey = Buffer.from(keyPair.clientPublicKey, 'base64');
 
-    let nonce: Buffer;
-    try {
-      nonce = await getRandomBytes(24);
-    } catch (error) {
+    const nonce: Buffer = await getRandomBytes(24).catch(error => {
       captureException('getRandomBytes', error);
       throw new Error(error);
-    }
+    });
     const encryptedPayload = nacl.box(serializedUpload, nonce, serverPublicKey, clientPrivate);
 
     captureMessage('Uploading encrypted diagnosis keys');

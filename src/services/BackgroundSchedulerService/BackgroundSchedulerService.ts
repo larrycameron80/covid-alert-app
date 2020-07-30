@@ -24,11 +24,7 @@ const registerPeriodicTask = async (task: PeriodicTask) => {
     },
     async taskId => {
       captureMessage('runPeriodicTask', {taskId});
-      try {
-        await task();
-      } catch (error) {
-        captureException('runPeriodicTask', error);
-      }
+      await task().catch(error => captureException('runPeriodicTask', error));
       BackgroundFetch.finish(taskId);
     },
   );
@@ -44,11 +40,7 @@ const registerAndroidHeadlessPeriodicTask = (task: PeriodicTask) => {
   }
   BackgroundFetch.registerHeadlessTask(async ({taskId}) => {
     captureMessage('runAndroidHeadlessPeriodicTask', {taskId});
-    try {
-      await task();
-    } catch (error) {
-      captureException('runAndroidHeadlessPeriodicTask', error);
-    }
+    await task().catch(error => captureException('runAndroidHeadlessPeriodicTask', error));
     BackgroundFetch.finish(taskId);
   });
   captureMessage('registerAndroidHeadlessPeriodicTask');

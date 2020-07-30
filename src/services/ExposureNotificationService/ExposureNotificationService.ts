@@ -120,11 +120,7 @@ export class ExposureNotificationService {
 
     await this.init();
 
-    try {
-      await this.exposureNotification.start();
-    } catch (error) {
-      captureException('Cannot start EN framework', error);
-    }
+    await this.exposureNotification.start().catch(error => captureException('Cannot start EN framework', error));
 
     await this.updateSystemStatus();
 
@@ -164,11 +160,9 @@ export class ExposureNotificationService {
   async startKeysSubmission(oneTimeCode: string): Promise<void> {
     const keys = await this.backendInterface.claimOneTimeCode(oneTimeCode);
     const serialized = JSON.stringify(keys);
-    try {
-      await this.secureStorage.set(SUBMISSION_AUTH_KEYS, serialized, {});
-    } catch (error) {
-      captureException('Unable to store SUBMISSION_AUTH_KEYS', error);
-    }
+
+    await this.secureStorage.set(SUBMISSION_AUTH_KEYS, serialized, {}).catch(error => captureException('Unable to store SUBMISSION_AUTH_KEYS', error));
+
     const cycleStartsAt = getCurrentDate();
     this.exposureStatus.append({
       type: 'diagnosed',
