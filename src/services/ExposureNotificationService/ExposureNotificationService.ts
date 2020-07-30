@@ -112,9 +112,7 @@ export class ExposureNotificationService {
   }
 
   async start(): Promise<void> {
-    if (this.starting) {
-      return;
-    }
+    if (this.starting) return;
 
     this.starting = true;
 
