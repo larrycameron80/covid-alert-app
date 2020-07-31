@@ -1,5 +1,6 @@
 /* eslint-disable require-atomic-updates */
 import {when} from 'jest-when';
+import {mock} from 'jest-mock-extended';
 
 import {periodSinceEpoch} from '../../shared/date-fns';
 import {BackendInterface} from '../BackendService';
@@ -28,10 +29,7 @@ const i18n: I18n = {
   translate: jest.fn().mockReturnValue('foo'),
   locale: 'en',
 };
-const storage: PersistencyProvider = {
-  getItem: jest.fn().mockResolvedValue(null),
-  setItem: jest.fn().mockResolvedValueOnce(undefined),
-};
+const storage = mock<PersistencyProvider>();
 const secureStorage: SecurePersistencyProvider = {
   get: jest.fn().mockResolvedValue(null),
   set: jest.fn().mockResolvedValueOnce(undefined),
@@ -109,6 +107,81 @@ describe('ExposureNotificationService', () => {
           type: 'diagnosed',
         }),
       );
+    });
+  });
+
+  describe('start', () => {
+    it('loads exposureStatus from storage', async () => {
+      when(storage.getItem)
+        .calledWith(EXPOSURE_STATUS)
+        .mockResolvedValue(
+          JSON.stringify({
+            type: 'diagnosed',
+          }),
+        );
+      expect(service.exposureStatus.get()).toStrictEqual(
+        expect.objectContaining({
+          type: 'monitoring',
+        }),
+      );
+
+      await service.start();
+
+      expect(service.exposureStatus.get()).toStrictEqual(
+        expect.objectContaining({
+          type: 'diagnosed',
+        }),
+      );
+    });
+
+    it('calls exposure notification start', async () => {
+      await service.start();
+
+      expect(bridge.start).toHaveBeenCalled();
+    });
+
+    class CountDownLatch {
+      private resolver: Promise<void>;
+      private resolve: () => void;
+
+      constructor(countDown: number) {
+        if (countDown <= 0) {
+          throw new Error('Countdown needs to be larger than 0');
+        }
+        let i = countDown;
+        this.resolver = new Promise(resolve => {
+          this.resolve = () => {
+            i -= 1;
+            if (i > 0) {
+              return;
+            }
+            resolve();
+          };
+        });
+      }
+
+      await() {
+        return this.resolver;
+      }
+
+      countDown(promise?: Promise<any>) {
+        if (promise) {
+          promise?.then(() => this.resolve());
+          return;
+        }
+        this.resolve();
+      }
+    }
+
+    it('prevent calling exposure notification start multiple times while it is starting', async () => {
+      const countDownLatch = new CountDownLatch(2);
+
+      countDownLatch.countDown(service.start());
+      countDownLatch.countDown(service.start());
+
+      await countDownLatch.await();
+
+      expect(bridge.start).toHaveBeenCalledTimes(1);
     });
   });
 
